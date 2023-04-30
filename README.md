@@ -1,20 +1,37 @@
-# Сборка nginx на alpine linux
+# Nginx, собираемый на alpine linux из исходного кода
 
-Проект предназначен, главным образом, для подготовки контейнеризованного `nginx` с расширениями, требующими сборки `nginx` из исходного кода (например, [nginx-module-vts](https://github.com/vozlt/nginx-module-vts)).
+Проект предназначен, главным образом, для подготовки контейнеризованного `nginx` с расширениями, требующими сборки `nginx` из исходного кода.
+
+В данном контейнере в nginx добавлен модуль [nginx-module-vts](https://github.com/vozlt/nginx-module-vts).
 
 ## Инструкция
 
-Ubuntu:
+1. В `Dockerfile` в переменной `NGINX_BUILD_VERSION` задайте желаемую версию `nginx` (на 30 апреля 2023 года - версия `1.24.0`).
 
-```bash
-sudo docker build nginx-module-vts
-```
+2. Сборка образа
 
-WSL (*Windows + WSL2 + Docker desktop*):
+    Ubuntu:
 
-```bash
-docker.exe build -t ornstein89/alpine-nginx-modules nginx-module-vts
-```
+    ```bash
+    sudo docker build -t ornstein89/alpine-nginx-modules .
+    ```
+
+    WSL (*Windows + WSL2 + Docker desktop*):
+
+    ```bash
+    docker.exe build -t ornstein89/alpine-nginx-modules .
+    ```
+
+3. Запуск
+
+    ```bash
+    docker.exe run --name alpine-nginx-modules -a stdin -a stdout -it ornstein89/alpine-nginx-modules sh
+    ```
+
+## TODO
+
+* [x] использовать `apk --virtual NAME add && apk del NAME` для уменьшения объёма.
+* [ ] Перейти на основу из <https://github.com/nginxinc/docker-nginx> и <https://hg.nginx.org/pkg-oss/>.
 
 ## Источники
 

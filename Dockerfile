@@ -1,24 +1,34 @@
+# FROM nginx:1.24.0-alpine-slim
 FROM alpine:latest
 
-RUN apk update
-RUN apk add --upgrade apk-tools
-RUN apk upgrade --available
+# RUN apk update
+# RUN apk add --upgrade apk-tools
+# RUN apk upgrade --available
 
 # для сборки nginx
-RUN apk --update add g++ make
+# RUN apk --update --upgrade --no-cache add g++ make
+# RUN apk --no-cache --virtual add .build-deps gcc g++ make linux-headers build-base \
 # RUN apk --update add gcc linux-headers pkgconfig
-
 # для сборки отдельных модулей nginx
-RUN apk --update add zlib-dev pcre-dev openssl-dev gd-dev
+# RUN apk --update --upgrade --no-cache add zlib-dev pcre-dev openssl-dev gd-dev
+    # && apk --no-cache --virtual add zlib-dev pcre-dev openssl-dev gd-dev
 # для работы с исходниками
 # RUN apk --update add wget
 
-# TODO указать версию, на момент конца апреля 2023 версия 1.24.0 - самая свежая
-# см. 
-RUN wget https://nginx.org/download/nginx-1.24.0.tar.gz
-RUN tar -zxvf nginx-1.24.0.tar.gz
+ENV NGINX_BUILD_VERSION=1.24.0
 
-RUN cd nginx-1.24.0 \
+# TODO указать версию, на момент конца апреля 2023 версия 1.24.0 - самая свежая
+RUN wget https://nginx.org/download/nginx-${NGINX_BUILD_VERSION}.tar.gz
+RUN tar -zxvf nginx-${NGINX_BUILD_VERSION}.tar.gz
+RUN rm nginx-${NGINX_BUILD_VERSION}.tar.gz
+
+RUN apk --no-cache --virtual .build-deps add gcc g++ make linux-headers build-base \
+# RUN apk --update add gcc linux-headers pkgconfig
+# для сборки отдельных модулей nginx
+# RUN apk --update --upgrade --no-cache add zlib-dev pcre-dev openssl-dev gd-dev
+    && apk --no-cache --virtual add zlib-dev pcre-dev openssl-dev gd-dev \
+# конфигурирование, см. https://nginx.org/en/docs/configure.html
+    && cd nginx-${NGINX_BUILD_VERSION} \
     && ./configure --prefix=/var/www/html \
     --sbin-path=/usr/sbin/nginx \
     --conf-path=/etc/nginx/nginx.conf \
@@ -33,10 +43,23 @@ RUN cd nginx-1.24.0 \
     --with-http_v2_module \
     --with-stream=dynamic \
     --with-http_addition_module \
-    --with-http_mp4_module
-RUN cd nginx-1.24.0 && make
-RUN cd nginx-1.24.0 && make install
+    --with-http_mp4_module \
+# сборка
+    && make \
+# установка
+    && make install \
+    && apk del .build-deps
 
-WORKDIR /etc/nginx
+# удаление библиотек, инструментов сборки и исходников
+# RUN apk del g++ make
+# RUN apk cache clean
+# RUN apk del zlib-dev pcre-dev openssl-dev gd-dev
+RUN rm -rf /nginx-${NGINX_BUILD_VERSION}
+
+#  && \
+#     rm -rf /tmp/src && \
+#     rm -rf /var/cache/apk/*
+
+# WORKDIR /etc/nginx
 EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]
