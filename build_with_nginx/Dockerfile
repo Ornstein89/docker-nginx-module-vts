@@ -54,8 +54,6 @@ RUN apk --no-cache --virtual .build-deps add gcc g++ make \
 # установка
     && make install \
     && apk del .build-deps
-RUN mkdir /etc/nginx/conf.d
-COPY default.conf /etc/nginx/conf.d/default.conf
 # удаление библиотек, инструментов сборки и исходников
 # RUN apk del g++ make
 # RUN apk cache clean
