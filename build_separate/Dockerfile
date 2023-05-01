@@ -48,10 +48,10 @@ ARG ARG_NGINX_VERSION
 ENV NGINX_VERSION=$ARG_NGINX_VERSION
 
 # копирование собранного модуля из сборочного образа
-COPY --from=build-stage /ngx_http_vhost_traffic_status_module.so /etc/nginx/modules
+COPY --from=build-stage /nginx-${NGINX_VERSION}/objs/ngx_http_vhost_traffic_status_module.so /etc/nginx/modules
 
 # копирование файлов конфигурации, модифицированных для работы нового модуля
 # RUN rm /etc/nginx/nginx.conf
-COPY nginx.conf /etc/nginx/nginx.conf
+# COPY nginx.conf /etc/nginx/nginx.conf
 # RUN mkdir /etc/nginx/conf.d
-COPY default.conf /etc/nginx/conf.d/default.conf
+# COPY default.conf /etc/nginx/conf.d/default.conf
